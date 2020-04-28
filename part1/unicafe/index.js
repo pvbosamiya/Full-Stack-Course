@@ -30,12 +30,14 @@ const Statistics = (props) => {
 
     return(
         <table>
-            <Statistic counter={props.good} text="good" />
-            <Statistic counter={props.neutral} text="neutral" />
-            <Statistic counter={props.bad} text="bad" />
-            <Statistic counter={props.all} text="all" />
-            <Statistic counter={props.score/props.all} text="average" />
-            <Positive value={props.good} total={props.all} />
+            <tbody>
+                <Statistic counter={props.good} text="good" />
+                <Statistic counter={props.neutral} text="neutral" />
+                <Statistic counter={props.bad} text="bad" />
+                <Statistic counter={props.all} text="all" />
+                <Statistic counter={props.score/props.all} text="average" />
+                <Positive value={props.good} total={props.all} />
+            </tbody>
         </table>
     )
 }
