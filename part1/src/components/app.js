@@ -1,18 +1,30 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Filter from './filter'
 import Persons from './persons'
+import axios from 'axios'
 
-const App = (props) => {
-    const phonebook = props.phonebook
-    const [persons, setPersons] = useState(phonebook)
+const App = () => {
+    const [persons, setPersons] = useState([])
     const [newName, setnewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
 
     const [search, setSearch] = useState('')
     const [useSearch, setUseSearch] = useState(false)
 
+    const hook = () => {
+        console.log('effect')
+        axios
+            .get('http://localhost:3001/db')
+                .then(response => {
+                    console.log('promise fulfilled')
+                    setPersons(response.data.persons)
+                })
+    }
+
+    useEffect(hook, [])
+
     const findPersonFunc = (person) => {
-        let name = person.name
+        let name = person.name.toLowerCase()
         if (name.includes(search))
         {
             console.log("Found: ", search, " in ", name)
@@ -22,7 +34,7 @@ const App = (props) => {
         return false
     }
 
-    const personsToShow = useSearch ? persons : persons.filter(findPersonFunc)
+    const personsToShow = useSearch ? persons.filter(findPersonFunc) : persons
 
     const searchPerson = (event) => {
         event.preventDefault()
@@ -70,6 +82,7 @@ const App = (props) => {
         setNewNumber(event.target.value)
     }
 
+    console.log(personsToShow)
     return (
     <div>
 
