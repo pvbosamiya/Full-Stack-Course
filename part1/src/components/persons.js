@@ -10,6 +10,11 @@ const Person = ({ person }) => {
 }
 
 const Persons = ({persons}) => {
+  if(persons.length === 0)
+  {
+    return <></>
+  }
+
   return (
   <>
   <table>

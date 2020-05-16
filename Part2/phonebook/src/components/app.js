@@ -11,21 +11,9 @@ const App = () => {
     const [search, setSearch] = useState('')
     const [useSearch, setUseSearch] = useState(false)
 
-    const hook = () => {
-        console.log('effect')
-        axios
-            .get('http://localhost:3001/db')
-                .then(response => {
-                    console.log('promise fulfilled')
-                    setPersons(response.data.persons)
-                })
-    }
-
-    useEffect(hook, [])
-
     const findPersonFunc = (person) => {
-        let name = person.name.toLowerCase()
-        if (name.includes(search))
+        let name = (person.name).toLowerCase()
+        if (name.includes(search.toLowerCase()))
         {
             console.log("Found: ", search, " in ", name)
             return true
@@ -36,14 +24,23 @@ const App = () => {
 
     const personsToShow = useSearch ? persons.filter(findPersonFunc) : persons
 
-    const searchPerson = (event) => {
-        event.preventDefault()
-        setUseSearch(true)
+    const hook = () => {
+        console.log('effect')
+        axios
+            .get('http://localhost:3001/persons')
+                .then(response => {
+                    console.log('promise fulfilled')
+                    console.log(response.data)
+                    setPersons(response.data)
+                })
     }
+
+    useEffect(hook, [])
 
     const handleSearch = (event) => {
         console.log(event.target.value)
         setSearch(event.target.value)
+        setUseSearch(true)
     }
 
     const checkPresence = (person) => person.name === newName
@@ -86,7 +83,7 @@ const App = () => {
     return (
     <div>
 
-        <Filter eventHandler={searchPerson} changeHandler={handleSearch} defaultSearch={search}/>
+        <Filter changeHandler={handleSearch} defaultSearch={search}/>
         <h2>Add</h2>
         <form onSubmit={addnewName}>
         <table>
