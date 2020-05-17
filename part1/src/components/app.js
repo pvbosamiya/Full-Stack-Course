@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import Filter from './filter'
 import Persons from './persons'
-import axios from 'axios'
+import personService from '../services/persons'
 
 const App = () => {
     const [persons, setPersons] = useState([])
@@ -15,7 +15,6 @@ const App = () => {
         let name = (person.name).toLowerCase()
         if (name.includes(search.toLowerCase()))
         {
-            console.log("Found: ", search, " in ", name)
             return true
         }
 
@@ -25,14 +24,16 @@ const App = () => {
     const personsToShow = useSearch ? persons.filter(findPersonFunc) : persons
 
     const hook = () => {
-        console.log('effect')
-        axios
-            .get('http://localhost:3001/persons')
-                .then(response => {
-                    console.log('promise fulfilled')
-                    console.log(response.data)
-                    setPersons(response.data)
-                })
+        personService.get().then(initialData => setPersons(initialData))
+    }
+
+    const deleteHandler = (id) => {
+        const handler = () => {
+            personService.remove(id)
+            personService.get().then(updatedData => setPersons(updatedData))
+        }
+
+        return handler
     }
 
     useEffect(hook, [newName])
@@ -45,15 +46,28 @@ const App = () => {
 
     const checkPresence = (person) => person.name === newName
 
-    const addnewName = (event) => {
+    const addnewPerson = (event) => {
         event.preventDefault()
-        if (newName.length !== 0)
+        if (newName.length !== 0 && newNumber.length !== 0)
         {
             let searchIndex = persons.findIndex(checkPresence)
             console.log("Found ", newName, " at index ", searchIndex)
             if (searchIndex !== -1)
             {
-                alert(newName + ' is already added to phonebook')
+                if(persons[searchIndex].number !== newNumber)
+                {
+                    const update = window.confirm(newName + 
+                        ' is part of the Phonebook, Do you want to update the phone number?')
+                    if(update === true)
+                    {
+                        const newPerson = {
+                            name: newName,
+                            number: newNumber
+                        }
+                        personService.update(persons[searchIndex].id, newPerson).then
+                            (setPersons(updatedPersons => setPersons(updatedPersons)))
+                    }
+                }
             }
             else
             {
@@ -62,11 +76,8 @@ const App = () => {
                     number: newNumber
                 }
 
-                axios
-                    .post('http://localhost:3001/persons', newPerson)
-                    .then(response => {
-                        setPersons(persons.concat(response.data))
-                    })
+                personService.create(newPerson).then(newPersonR => 
+                    setPersons(persons.concat(newPersonR)))
             }
 
             setnewName('')
@@ -84,13 +95,12 @@ const App = () => {
         setNewNumber(event.target.value)
     }
 
-    console.log(personsToShow)
     return (
     <div>
 
         <Filter changeHandler={handleSearch} defaultSearch={search}/>
         <h2>Add</h2>
-        <form onSubmit={addnewName}>
+        <form onSubmit={addnewPerson}>
         <table>
             <tbody>
                 <tr>
@@ -108,7 +118,7 @@ const App = () => {
         <button type="submit">add</button>
         </form>
         <h2>Numbers</h2>
-        <Persons persons={personsToShow} />
+        <Persons persons={personsToShow} handler={deleteHandler}/>
     </div>
     )
 }

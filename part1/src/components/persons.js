@@ -1,15 +1,18 @@
 import React from 'react'
 
-const Person = ({ person }) => {
+const Person = ({ person , deleteHandler}) => {
   return (
     <tr>
       <td>{person.name}</td> 
       <td>{person.number}</td>
+      <td>
+        <button onClick={deleteHandler(person.id)}>delete</button>
+      </td>
     </tr>
   )
 }
 
-const Persons = ({persons}) => {
+const Persons = ({persons, handler}) => {
   if(persons.length === 0)
   {
     return <></>
@@ -20,7 +23,7 @@ const Persons = ({persons}) => {
   <table>
       <tbody>    
       {persons.map((person) => 
-          <Person key={person.name} person={person} />
+          <Person key={person.name} person={person} deleteHandler={handler}/>
           )}
       </tbody>
   </table>
