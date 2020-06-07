@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import Filter from './filter'
 import Persons from './persons'
 import personService from '../services/persons'
+import '../index.css'
 
 const App = () => {
     const [persons, setPersons] = useState([])
@@ -10,6 +11,8 @@ const App = () => {
 
     const [search, setSearch] = useState('')
     const [useSearch, setUseSearch] = useState(false)
+    const [popUpMessage, setPopUpMessage] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null)
 
     const findPersonFunc = (person) => {
         let name = (person.name).toLowerCase()
@@ -30,10 +33,13 @@ const App = () => {
 
     const checkPresence = (person) => person.name === newName
 
-    const deleteHandler = (id) => {
+    const deleteHandler = (person) => {
         const handler = () => {
-            personService.remove(id)
-            setPersons(persons.filter(person => person.id !== id))
+            personService.remove(person.id).catch(error => {
+                setErrorMessage(`Information of ${person.name} has already been removed from server.`)
+                setTimeout(() => setErrorMessage(null), 5000)
+            })
+            setPersons(persons.filter(validPerson => validPerson.id !== person.id))
         }
 
         return handler
@@ -65,8 +71,17 @@ const App = () => {
                             name: newName,
                             number: newNumber
                         }
-                        personService.update(persons[searchIndex].id, newPerson)
+                        personService.update(persons[searchIndex].id, newPerson).then(updatedPerson =>
+                            {
+                                setPopUpMessage(`Updated '${updatedPerson.name}'`)
+                                setTimeout(() => setPopUpMessage(null), 5000)
+                            })
                     }
+                }
+                else
+                {
+                    setPopUpMessage(`No new data '${newName} ${newNumber}', skipping update ...`)
+                    setTimeout(() => setPopUpMessage(null), 5000)
                 }
             }
             else
@@ -76,8 +91,12 @@ const App = () => {
                     number: newNumber
                 }
 
-                personService.create(newPerson).then(newPersonR => 
-                    setPersons(persons.concat(newPersonR)))
+                personService.create(newPerson).then(newPersonR =>
+                    {
+                        setPersons(persons.concat(newPersonR))
+                        setPopUpMessage(`Added '${newPersonR.name}'`)
+                        setTimeout(() => setPopUpMessage(null), 5000)
+                    })
             }
 
             setnewName('')
@@ -98,7 +117,7 @@ const App = () => {
     console.log("Rendering ...", persons)
     return (
     <div>
-        <Filter changeHandler={handleSearch} defaultSearch={search}/>
+        <Filter changeHandler={handleSearch} defaultSearch={search} message={popUpMessage} errorMessage={errorMessage}/>
         <h2>Add</h2>
         <form onSubmit={addnewPerson}>
         <table>
