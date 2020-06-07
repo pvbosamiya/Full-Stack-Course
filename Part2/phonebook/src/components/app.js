@@ -24,13 +24,19 @@ const App = () => {
     const personsToShow = useSearch ? persons.filter(findPersonFunc) : persons
 
     const hook = () => {
+        console.log("Fetching ...")
         personService.get().then(initialData => setPersons(initialData))
     }
 
-    const deleteHandler = (id) => {
+    const checkPresence = (person) => person.name === newName
+
+    const deleteHandler = (person) => {
         const handler = () => {
-            personService.remove(id)
-            personService.get().then(updatedData => setPersons(updatedData))
+            personService.remove(person.id)
+            let searchIndex = persons.indexOf(person)
+            let oldPersons = persons
+            oldPersons.splice(searchIndex, 1)
+            setPersons([].concat(oldPersons))
         }
 
         return handler
@@ -43,8 +49,6 @@ const App = () => {
         setSearch(event.target.value)
         setUseSearch(true)
     }
-
-    const checkPresence = (person) => person.name === newName
 
     const addnewPerson = (event) => {
         event.preventDefault()
@@ -65,9 +69,6 @@ const App = () => {
                             number: newNumber
                         }
                         personService.update(persons[searchIndex].id, newPerson)
-                            .then(updatedPersonData => {
-                                setPersons(persons.map(person => person.id !== persons[searchIndex].id ? person : updatedPersonData))
-                            })
                     }
                 }
             }
@@ -97,9 +98,9 @@ const App = () => {
         setNewNumber(event.target.value)
     }
 
+    console.log("Rendering ...", persons)
     return (
     <div>
-
         <Filter changeHandler={handleSearch} defaultSearch={search}/>
         <h2>Add</h2>
         <form onSubmit={addnewPerson}>
