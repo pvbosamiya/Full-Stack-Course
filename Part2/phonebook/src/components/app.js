@@ -30,13 +30,10 @@ const App = () => {
 
     const checkPresence = (person) => person.name === newName
 
-    const deleteHandler = (person) => {
+    const deleteHandler = (id) => {
         const handler = () => {
-            personService.remove(person.id)
-            let searchIndex = persons.indexOf(person)
-            let oldPersons = persons
-            oldPersons.splice(searchIndex, 1)
-            setPersons([].concat(oldPersons))
+            personService.remove(id)
+            setPersons(persons.filter(person => person.id !== id))
         }
 
         return handler
