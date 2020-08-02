@@ -1,0 +1,15 @@
+# Mac_OS Files
+.DS_Store
+**/.DS_Store
+**/.vscode
+
+# Docker project files
+part1/Dockerfile
+part2/countries-data/Dockerfile
+part1/anecdote-example/
+
+# Env files
+**/.env
+
+# Node modules
+**/node_modules
