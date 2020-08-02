@@ -5,7 +5,8 @@ const morgan = require('morgan')
 morgan.token('data', function getBody (req) { return JSON.stringify(req.body) })
 
 app.use(express.json())
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data',{
+    skip: function (req, res) { return req.method !== "POST" }}))
 
 let persons = [
     {
@@ -47,7 +48,6 @@ app.get('/api/persons', (req, res) => {
 app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id)
     const entry = persons.find(person => person.id === id)
-    
     if (entry) 
     {
       res.json(entry)
@@ -67,8 +67,7 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
     const body = req.body
-    console.log(req.body)
-
+    
     if (!body || !body.name || !body.number)
     {
         return res.status(400).json(
