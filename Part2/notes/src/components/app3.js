@@ -8,7 +8,7 @@ const App3 = () => {
 
     const hook = () => {
         axios
-            .get('http://localhost:3001/notes')
+            .get('/api/notes')
             .then(response => {
                 console.log(response.data)
                 setNotes(response.data)
@@ -26,7 +26,7 @@ const App3 = () => {
         }
         
         axios
-        .post('http://localhost:3001/notes', noteObject)
+        .post('/api/notes', noteObject)
         .then(response => {
             setNotes(notes.concat(response.data))
             setNewNote('')

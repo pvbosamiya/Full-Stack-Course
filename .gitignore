@@ -2,6 +2,7 @@
 .DS_Store
 **/.DS_Store
 **/.vscode
+**/.idea
 
 # Docker project files
 part1/Dockerfile
@@ -13,3 +14,12 @@ part1/anecdote-example/
 
 # Node modules
 **/node_modules
+
+# Heroku sample app
+heroku/**
+
+# Frontend Prod builds
+part2/notes/build
+part2/phonebook/build/
+part2/notes/public/
+part2/phonebook/public
