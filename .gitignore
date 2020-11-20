@@ -24,3 +24,5 @@ part2/phonebook/build/
 part2/notes/public/
 part2/phonebook/public
 db.txt
+/part3/phonebook/mongo.js
+/part3/mongo.js

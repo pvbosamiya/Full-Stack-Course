@@ -8,7 +8,8 @@ morgan.token('data', function getBody (req) { return JSON.stringify(req.body) })
 
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data',{
-    skip: function (req, res) { return req.method !== "POST" }}))
+    // eslint-disable-next-line no-unused-vars
+    skip: function (req, res) { return req.method !== 'POST' } }))
 app.use(express.static('build'))
 
 require('dotenv').config()
@@ -21,41 +22,41 @@ app.get('/', (req, res) => {
 app.get('/info', (req, res) => {
     let date = new Date(Date.now())
     Person.find().estimatedDocumentCount((err, no_persons) => {
-      let message = `Phonebook has info for ${no_persons} people.`
-      res.send(`<p>${message}</p> <p> ${date.toString()} </p>`)
+        let message = `Phonebook has info for ${no_persons} people.`
+        res.send(`<p>${message}</p> <p> ${date.toString()} </p>`)
     })
 })
-  
+
 app.get('/api/persons', (req, res, next) => {
     Person.find().then(persons => {
-      res.json(persons)
+        res.json(persons)
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-  Person.findById(req.params.id).then(entry =>
-  {
-    if (entry) 
+    Person.findById(req.params.id).then(entry =>
     {
-      res.json(entry)
-    } 
-    else 
-    {
-      res.status(404).end()
-    }
-  }).catch(error => next(error))
+        if (entry)
+        {
+            res.json(entry)
+        }
+        else
+        {
+            res.status(404).end()
+        }
+    }).catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body
-    
+
     if (!body || !body.name || !body.number)
     {
         return res.status(400).json(
-        { 
-            error: 'content missing' 
-        })
+            {
+                error: 'content missing'
+            })
     }
 
     const entry = new Person({
@@ -63,52 +64,67 @@ app.post('/api/persons', (req, res) => {
         number: body.number,
     })
 
-    entry.save().then(savedEntry => {
-      res.json(savedEntry)
-    })
+    entry.save().
+        then(savedEntry => {
+            res.json(savedEntry)
+        })
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
-  const body = req.body
+    const body = req.body
 
-  const person = {
-    name: body.name,
-    number: body.number
-  }
+    const person = {
+        name: body.name,
+        number: body.number
+    }
 
-  Person.findByIdAndUpdate(req.params.id, person, {new: true})
-    .then(updatedEntry => {
-      console.log("Updated entry is", updatedEntry)
-      res.json(updatedEntry)
-    })
-    .catch(error => next(error))
+    Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true, context: 'query' })
+        .then(updatedEntry => {
+            console.log('Updated entry is', updatedEntry)
+            res.json(updatedEntry)
+        })
+        .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
-  Person.findByIdAndDelete(req.params.id)
-    .then(result => res.status(204).send())
-    .catch(error => next(error))
+    Person.findByIdAndDelete(req.params.id)
+        .then(result => {
+            console.log('Removed: ', result)
+            res.status(204).send()})
+        .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
+    response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
+    console.error(error.message)
 
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } 
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }else if(error.name === 'ValidationError')
+    {
+        console.log('Validation error reported: ', error)
+        let message = error.message
+        if (error.kind === 'phonebook-unique-validator')
+        {
+            message = 'Duplicate Entry'
+        }
 
-  next(error)
+        return response.status(400).send({ error: message })
+    }
+
+    next(error)
 }
 
 app.use(errorHandler)
 
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`)
 })

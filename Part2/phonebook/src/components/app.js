@@ -76,6 +76,16 @@ const App = () => {
                                 setPopUpMessage(`Updated '${updatedPerson.name}'`)
                                 setTimeout(() => setPopUpMessage(null), 5000)
                             })
+                            .catch(error => {
+                                console.log(error)
+                                let status = error.response.status
+                                let error_message = error.response.data
+                                if (status === 400 && error_message !== 'Duplicate Entry')
+                                {
+                                    setErrorMessage(`Error: '${error_message}' during update of '${newName} ${newNumber}', skipping update ...`)
+                                    setTimeout(() => setErrorMessage(null), 10000)
+                                }
+                            })
                     }
                 }
                 else
@@ -96,6 +106,15 @@ const App = () => {
                         setPersons(persons.concat(newPersonR))
                         setPopUpMessage(`Added '${newPersonR.name}'`)
                         setTimeout(() => setPopUpMessage(null), 5000)
+                    })
+                    .catch(error => {
+                        let status = error.response.status
+                        let error_message = error.response.data.error
+                        if (status === 400 && error_message !== 'Duplicate Entry')
+                        {
+                            setErrorMessage(`Error: '${error_message}' during creation of entry: '${newName}, ${newNumber}'.`)
+                            setTimeout(() => setErrorMessage(null), 10000)
+                        }
                     })
             }
 
