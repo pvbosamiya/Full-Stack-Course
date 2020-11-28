@@ -1,0 +1,8 @@
+Break down the files in different folder
+- Controller to send out requests to DB
+- utils for logging and middleware
+- models to define DB schema, also add schema validation and a custom toJSON function
+- add validation before adding data to DB
+- add a middleware to handle error handling, specifically casting error and validation errors
+- handling unknown endpoints
+- config handling in a separate utility for enviornment variables
